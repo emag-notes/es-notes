@@ -1,7 +1,9 @@
 #!/bin/sh
 
+VERSION=2.2.0
+
 yum -y install java-1.8.0-openjdk-devel
-yum -y install https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/rpm/elasticsearch/2.2.0/elasticsearch-2.2.0.rpm
+yum -y install https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/rpm/elasticsearch/${VERSION}/elasticsearch-${VERSION}.rpm
 
 rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
 cp /vagrant/provisioning/es/kibana.repo /etc/yum.repos.d

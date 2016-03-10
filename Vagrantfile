@@ -29,10 +29,25 @@ Vagrant.configure(2) do |config|
   config.vm.provision :shell, :path => "./provisioning/common/disable-firewalld.sh"
 
   # elasticsearch
-  config.vm.define :es do |es|
-    es.vm.hostname = "es"
-    es.vm.network "private_network", ip: "192.168.100.10"
-    es.vm.provision :shell, :path => "./provisioning/es/install-packages.sh"
+  config.vm.define :es1 do |es1|
+    es1.vm.hostname = "es1"
+    es1.vm.network "private_network", ip: "192.168.100.10"
+    es1.vm.provision :shell, :path => "./provisioning/es/install-packages.sh"
+    es1.vm.provision :shell, :path => "./provisioning/es/es1-settings.sh"
+  end
+
+  config.vm.define :es2 do |es2|
+    es2.vm.hostname = "es2"
+    es2.vm.network "private_network", ip: "192.168.100.11"
+    es2.vm.provision :shell, :path => "./provisioning/es/install-packages.sh"
+    es2.vm.provision :shell, :path => "./provisioning/es/es2-settings.sh"
+  end
+
+  config.vm.define :es3 do |es3|
+    es3.vm.hostname = "es3"
+    es3.vm.network "private_network", ip: "192.168.100.12"
+    es3.vm.provision :shell, :path => "./provisioning/es/install-packages.sh"
+    es3.vm.provision :shell, :path => "./provisioning/es/es3-settings.sh"
   end
 
 end
