@@ -51,4 +51,11 @@ Vagrant.configure(2) do |config|
     es3.vm.provision :shell, :path => "./provisioning/es/es3-settings.sh"
   end
 
+  # kibana
+  config.vm.define :kibana1 do |kibana1|
+    kibana1.vm.hostname = "kibana1"
+    kibana1.vm.network "private_network", ip: "192.168.150.20"
+    kibana1.vm.provision :shell, :path => "./provisioning/kibana/install-packages.sh"
+    kibana1.vm.provision :shell, :path => "./provisioning/kibana/kibana1-settings.sh"
+  end
 end
