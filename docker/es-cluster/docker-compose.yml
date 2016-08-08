@@ -1,0 +1,42 @@
+version: '2'
+
+services:
+  es01:
+    image: elasticsearch:2.3.4
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./es/config/es01:/etc/elasticsearch
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+    links:
+      - es02
+      - es03
+    command: elasticsearch -Des.path.conf=/etc/elasticsearch
+
+  es02:
+    image: elasticsearch:2.3.4
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./es/config/es02:/etc/elasticsearch
+    ports:
+      - "9202:9200"
+      - "9302:9300"
+    # links:
+    #   - es01
+    #   - es03
+    command: elasticsearch -Des.path.conf=/etc/elasticsearch
+
+  es03:
+    image: elasticsearch:2.3.4
+    command: elasticsearch -Des.network.host=0.0.0.0
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./es/config/es03:/etc/elasticsearch
+    ports:
+      - "9203:9200"
+      - "9303:9300"
+    # links:
+    #   - es01
+    #   - es02
+    command: elasticsearch -Des.path.conf=/etc/elasticsearch
