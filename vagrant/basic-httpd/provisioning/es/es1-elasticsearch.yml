@@ -26,6 +26,8 @@ node.name: es-1
 #
 # node.rack: r1
 #
+node.master: true
+node.data: false
 # ----------------------------------- Paths ------------------------------------
 #
 # Path to directory where to store the data (separate multiple locations by comma):
