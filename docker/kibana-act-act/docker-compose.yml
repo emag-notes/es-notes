@@ -1,0 +1,68 @@
+version: '2'
+
+services:
+  es-master:
+    image: elasticsearch:2.3.4
+    command: elasticsearch -Des.network.host=0.0.0.0 --node.master=true --node.data=false --node.name="es-master" --network.publish_host="es-master" --discovery.zen.ping.unicast.hosts="es-master,es-data,es-client"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  es-data:
+    image: elasticsearch:2.3.4
+    command: elasticsearch -Des.network.host=0.0.0.0 --node.master=false --node.data=true --node.name="es-data" --network.publish_host="es-data" --discovery.zen.ping.unicast.hosts="es-master,es-data,es-client"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+
+  es-client:
+    image: elasticsearch:2.3.4
+    command: elasticsearch -Des.network.host=0.0.0.0 --node.master=false --node.data=false --node.name="es-client" --network.publish_host="es-client" --discovery.zen.ping.unicast.hosts="es-master,es-data,es-client"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "9202:9200"
+      - "9302:9300"
+
+  logstash:
+    image: logstash:2.3.4-1
+    command: logstash -f /etc/logstash/conf.d/logstash.conf
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./logstash/config:/etc/logstash/conf.d
+    ports:
+      - "5000:5000"
+    links:
+      - es-client
+
+  kibana1:
+    build:
+      context: ./kibana
+      #args:
+      #  http_proxy: http://proxy.example.com
+      #  https_proxy: http://proxy.example.com
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./kibana/config/:/opt/kibana/config/
+    ports:
+      - "5601:5601"
+    links:
+      - es-client
+
+  kibana2:
+    build:
+      context: ./kibana
+      #args:
+      #  http_proxy: http://proxy.example.com
+      #  https_proxy: http://proxy.example.com
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./kibana/config/:/opt/kibana/config/
+    ports:
+      - "5602:5601"
+    links:
+      - es-client
