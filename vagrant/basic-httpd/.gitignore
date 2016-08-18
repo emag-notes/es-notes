@@ -2,3 +2,5 @@
 *.gz
 *sa*.txt
 logs
+logs_*
+*.cap
