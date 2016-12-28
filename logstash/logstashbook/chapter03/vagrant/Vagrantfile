@@ -1,0 +1,76 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  # cache
+  if Vagrant.has_plugin?("vagrant-cachier")
+    config.cache.scope = :box
+  end
+
+  # common
+  config.vm.box = "centos71"
+  config.vm.box_url = "https://github.com/CommanderK5/packer-centos-template/releases/download/0.7.1/vagrant-centos-7.1.box"
+
+  config.vm.provider :virtualbox do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "2048"]
+  end
+
+  config.vm.provision :shell do |shell|
+    shell.path = "./provisioning/common/proxy.sh"
+    shell.args = ""
+  end
+
+  config.vm.provision :shell, :path => "./provisioning/common/remove-puppet.sh"
+  config.vm.provision :shell, :path => "./provisioning/common/fast-mirror.sh"
+  config.vm.provision :shell, :path => "./provisioning/common/yum-update.sh"
+  config.vm.provision :shell, :path => "./provisioning/common/install-packages.sh"
+  config.vm.provision :shell, :path => "./provisioning/common/timezone.sh"
+  config.vm.provision :shell, :path => "./provisioning/common/localeconf.sh"
+  config.vm.provision :shell, :path => "./provisioning/common/ntp.sh"
+  config.vm.provision :shell, :path => "./provisioning/common/disable-firewalld.sh"
+
+  # elasticsearch
+  config.vm.define :elasticsearch do |elasticsearch|
+    elasticsearch.vm.hostname = "elasticsearch"
+    elasticsearch.vm.network "private_network", ip: "192.168.150.10"
+    elasticsearch.vm.provision :shell, :path => "./provisioning/es/install-packages.sh"
+    elasticsearch.vm.provision :shell, :path => "./provisioning/es/settings.sh"
+  end
+
+  # logstash
+  ## indexer
+  config.vm.define :logstash_indexer do |logstash_indexer|
+    logstash_indexer.vm.hostname = "logstash-indexer"
+    logstash_indexer.vm.network "private_network", ip: "192.168.150.20"
+    logstash_indexer.vm.provision :shell, :path => "./provisioning/logstash/install-packages.sh"
+    logstash_indexer.vm.provision :shell, :path => "./provisioning/logstash/indexer-settings.sh"
+  end
+
+  ## shipper
+  config.vm.define :logstash_shipper do |logstash_shipper|
+    logstash_shipper.vm.hostname = "logstash-shipper"
+    logstash_shipper.vm.network "private_network", ip: "192.168.150.21"
+    logstash_shipper.vm.provision :shell, :path => "./provisioning/logstash/install-packages.sh"
+    logstash_shipper.vm.provision :shell, :path => "./provisioning/logstash/shipper-settings.sh"
+  end
+
+  # redis
+  config.vm.define :redis do |redis|
+    redis.vm.hostname = "redis"
+    redis.vm.network "private_network", ip: "192.168.150.30"
+    redis.vm.provision :shell, :path => "./provisioning/redis/install-packages.sh"
+    redis.vm.provision :shell, :path => "./provisioning/redis/settings.sh"
+  end
+
+  # kibana
+  config.vm.define :kibana do |kibana|
+    kibana.vm.hostname = "kibana"
+    kibana.vm.network "private_network", ip: "192.168.150.40"
+    kibana.vm.provision :shell, :path => "./provisioning/kibana/install-packages.sh"
+    kibana.vm.provision :shell, :path => "./provisioning/kibana/settings.sh"
+    kibana.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "512"]
+    end
+  end
+
+end
